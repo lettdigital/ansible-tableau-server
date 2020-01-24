@@ -1,0 +1,66 @@
+- name: run initialize-tsm
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'sudo $(realpath $(which initialize-tsm)) --accepteula'
+    touch /var/opt/tableau/tableau_server/ansible_tsm_initialized
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_tsm_initialized
+
+- name: licenses activate
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tsm licenses activate -k {{ item }}'
+    touch /var/opt/tableau/tableau_server/ansible_license_{{ item }}_activated
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_license_{{ item }}_activated
+  with_items: "{{ licenses }}"
+
+- name: copy registration file
+  copy:
+    src: ../files/registration.json
+    dest: /var/opt/tableau/tableau_server/registration.json
+
+- name: registration
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tsm register --file /var/opt/tableau/tableau_server/registration.json'
+    touch /var/opt/tableau/tableau_server/ansible_registered
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_registered
+
+- name: copy settings file
+  copy:
+    src: ../files/settings.json
+    dest: /var/opt/tableau/tableau_server/settings.json
+
+- name: import settings
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tsm settings import -f /var/opt/tableau/tableau_server/settings.json'
+    touch /var/opt/tableau/tableau_server/ansible_settings_imported
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_settings_imported
+
+- name: apply settings
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tsm pending-changes apply -ignore-prompt'
+    touch /var/opt/tableau/tableau_server/ansible_settings_applied
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_settings_applied
+
+- name: initialize
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tsm initialize --start-server --request-timeout 1800'
+    touch /var/opt/tableau/tableau_server/ansible_initialized
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_initialized
+
+- name: create initialuser
+  shell: |
+    set -e
+    runuser -l {{ tsm_user }} -c 'tabcmd initialuser --server http://localhost --username {{ tableau_admin_user }} --password {{ tableau_admin_password }}'
+    touch /var/opt/tableau/tableau_server/ansible_initialuser_created
+  args:
+    creates: /var/opt/tableau/tableau_server/ansible_initialuser_created
