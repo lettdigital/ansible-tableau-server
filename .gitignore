@@ -1,0 +1,4 @@
+.idea
+*.retry
+roles/tableau-server-primary-setup/files/*.json
+roles/tableau-server-worker-setup/files/*.json
