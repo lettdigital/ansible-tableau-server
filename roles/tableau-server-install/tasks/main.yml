@@ -1,3 +1,6 @@
 ---
 # tasks file for tableau-server-install
-- include: install.yml
+- include: install_nginx.yml
+
+- include: install_tableau.yml
+
