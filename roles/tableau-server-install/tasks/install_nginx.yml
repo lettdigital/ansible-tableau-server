@@ -1,0 +1,18 @@
+---
+- name: install nginx
+  shell: |-
+    sudo amazon-linux-extras install -y nginx1
+
+- name: deploy nginx config
+  copy:
+    src: "{{ role_path }}/files/nginx.conf"
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: enable, test and reload nginx
+  shell: |-
+    sudo nginx -t &&
+      sudo systemctl enable nginx &&
+      sudo systemctl restart nginx

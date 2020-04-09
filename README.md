@@ -21,7 +21,7 @@ The role has only been tested on the following software:
 
 Playbooks
 --------------
-### [`tableau-server-install`](roles/tableau-server-install/tasks/install.yml)
+### [`tableau-server-install`](roles/tableau-server-install/tasks/install_tableau.yml)
 This role installs Tableau Server 2019.04.1+ and drivers on Amazon Linux 2.
 
 ##### Required Vars
